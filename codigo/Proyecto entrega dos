@@ -1,0 +1,112 @@
+# Integrantes: Sara Tabares Osorio y Valentina Giraldo
+# Proyecto de Estructuras de Datos y Algoritmos, entrega número 2 
+
+import pandas as pd  # Esto es una librería
+import gmplot        # Esto es una librería
+
+dataFrame = pd.read_csv( "C:/Users/ASUS/Documents/MEDELLIN_PROYECTO DE DATOS/calles_de_medellin_con_acoso (1).csv", sep = ';' )  
+# Esto lee el archivo csv, el cual contiene las coordenadas de las calles de Medellín
+
+dataFrame_Final = dataFrame.fillna({"harassmentRisk":dataFrame['harassmentRisk'].mean()})
+# Crea la variable del dataFrame_Final y le asigna el dataFrame el cual contiene la información del archivo y este reemplaza
+# y este con la ayuda del método fillna ayuda a sustituir los valores nulos en una estructura pandas 
+
+lista_De_Adyacencia = {}
+# Esto es un grafo vacío en diccionario 
+
+
+for indice in dataFrame_Final.index:
+
+    if dataFrame_Final["origin"][indice] not in lista_De_Adyacencia :
+        
+        lista_De_Adyacencia[dataFrame_Final["origin"][indice]] = {dataFrame_Final["destination"][indice]:(dataFrame_Final["harassmentRisk"][indice]+dataFrame_Final["length"][indice])/2}
+        # En este if, si el origen no está dentro de la lista de adyacencia, es decir en la estructura del grafo, lo que hará es crearlo, es decir, asignarle un valor 
+         
+    else:
+
+        lista_De_Adyacencia[dataFrame_Final["origin"][indice]][dataFrame_Final["destination"][indice]] = (dataFrame_Final["harassmentRisk"][indice]+dataFrame_Final["length"][indice])/2
+        # De lo contrario lo guarda 
+        
+    if  dataFrame_Final["oneway"][indice] == True: 
+
+      if dataFrame_Final["destination"][indice] not in lista_De_Adyacencia :
+
+        lista_De_Adyacencia[dataFrame_Final["destination"][indice]] = {dataFrame_Final["origin"][indice]:(dataFrame_Final["harassmentRisk"][indice]+dataFrame_Final["length"][indice])/2}
+        # En este if, si el destino no está dentro de la lista de adyacencia, lo crea
+
+      else:
+
+        lista_De_Adyacencia[dataFrame_Final["destination"][indice]][dataFrame_Final["origin"][indice]]=(dataFrame_Final["harassmentRisk"][indice]+dataFrame_Final["length"][indice])/2
+        # De lo contrario lo guarda 
+  
+def dijkstra(empieza , termina): 
+    # Aquí se empieza a implementar Dijkstra, el cual es un algoritmo en el que se usan los nodos de un grafo
+    # que como objetivo tiene encontrar el coste mínimo o menor, ubicándose desde un nodo de origen
+    # para ir a todos los demás nodos del grafo y a partir de esto calcular el coste de ruta 
+
+    ruta_Mas_Corta = {}
+    distancia_A_Cada_Nodo = {}
+    nodos_Restantes = lista_De_Adyacencia
+    numero_Infinito = 333333
+    ruta = [] 
+    
+    for nodo in nodos_Restantes :
+
+        ruta_Mas_Corta[nodo] = numero_Infinito
+        # Aquí este for hace que los nodos restantes, es decir los que no se han implementado 
+        # tomen el valor del número infinito
+
+    ruta_Mas_Corta[empieza] = 0
+
+    while nodos_Restantes :
+        Min_Distance = None
+        for nodo in nodos_Restantes:
+            if Min_Distance is None:
+                Min_Distance = nodo
+            if ruta_Mas_Corta[nodo] < ruta_Mas_Corta [Min_Distance] :
+                Min_Distance = nodo
+        posibles_Rutas = lista_De_Adyacencia[Min_Distance].items()
+        
+        for clave, valor in posibles_Rutas :
+            if valor + ruta_Mas_Corta[Min_Distance] < ruta_Mas_Corta[clave] :
+                ruta_Mas_Corta[clave] = valor + ruta_Mas_Corta[Min_Distance]
+                distancia_A_Cada_Nodo[clave] = Min_Distance
+        nodos_Restantes.pop(Min_Distance)   
+                  
+    nuevo_Nodo = termina
+    while nuevo_Nodo != empieza :
+        try:
+            ruta.insert(0 , nuevo_Nodo)
+            nuevo_Nodo = distancia_A_Cada_Nodo[nuevo_Nodo]
+        except KeyError: 
+            print("Esta ruta no es correcta, ingrese una nueva")
+            break   
+        # Este error, es para que en cualquier caso de que salga una excepción,
+        # el programa muestre el mensaje de arriba "Esta ruta no es correcta, ingrese una nueva"
+
+    ruta.insert(0 , empieza)
+    if ruta_Mas_Corta[termina] != numero_Infinito :
+        return  ruta
+ 
+rutaUsuario = dijkstra('(-75.5728593, 6.2115169)','(-75.5647792, 6.2091073)')
+# Aquí se le está dando una coordenada a Dijkstra para que ejecute la ruta y la grafique 
+
+lista_de_Latitudes = []
+lista_de_Longitudes = []  
+
+# Aquí se definen las variables para que recorra las coordenadas y 
+# almacene esta información, con el fin de que luego grafique 
+
+for elemento in rutaUsuario: 
+    coordenada=str(elemento)
+    coordenada=coordenada.replace(" ","")
+    lista_de_Longitudes.append(float(coordenada[1:coordenada.find(",")]))
+    lista_de_Latitudes.append(float(coordenada[coordenada.find(",")+1:len(coordenada)-1]))
+
+
+gmap3 = gmplot.GoogleMapPlotter(lista_de_Latitudes[0],lista_de_Longitudes[0], 40) 
+gmap3.scatter( lista_de_Latitudes, lista_de_Longitudes, '# 008000', size = 30, marker = False ) 
+gmap3.plot(lista_de_Latitudes, lista_de_Longitudes, 'cornflowerblue', edge_width = 3.5) 
+gmap3.draw("C:/Users/ASUS/Documents/MEDELLIN_PROYECTO DE DATOS/map13.html")
+
+# Esta parte corresponde a la gráfica de la ruta
