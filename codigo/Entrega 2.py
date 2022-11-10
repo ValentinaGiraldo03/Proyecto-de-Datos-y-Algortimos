@@ -23,7 +23,7 @@ while continuar=="si":
     if n==1:
         grafo_Temp={}
         #creo un grafo aparte del cuya en la que la tupla se cambia por el promedio de riesgo y longitud
-        #lo hize así pa cuando toque calcular los 3 caminos distintos 
+        #lo hice así para cuando se deba calcular los 3 caminos distintos 
         for clave in grafo:
             grafo_Temp[clave]=grafo[clave]
             for valor in grafo[clave]:
@@ -32,7 +32,7 @@ while continuar=="si":
     elif n==2:
         grafo_Temp={}
         #creo un grafo aparte del cuya en la que la tupla se cambia por el promedio de riesgo y longitud
-        #lo hize así pa cuando toque calcular los 3 caminos distintos 
+        #lo hice así para cuando se deba calcular los 3 caminos distintos 
         for clave in grafo:
             grafo_Temp[clave]=grafo[clave]
             for valor in grafo[clave]:
@@ -41,7 +41,7 @@ while continuar=="si":
     elif n==3:
         grafo_Temp={}
         #creo un grafo aparte del cuya en la que la tupla se cambia por el promedio de riesgo y longitud
-        #lo hize así pa cuando toque calcular los 3 caminos distintos 
+        #lo hice así para cuando se deba calcular los 3 caminos distintos 
         for clave in grafo:
             grafo_Temp[clave]=grafo[clave]
             for valor in grafo[clave]:
